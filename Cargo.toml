@@ -1,0 +1,13 @@
+[package]
+name = "arb-ea"
+version = "0.1.0"
+edition = "2024"
+
+[dev-dependencies]
+tuple_list.workspace = true
+
+[workspace]
+members = ["."]
+
+[workspace.dependencies]
+tuple_list = "0.1.3"
