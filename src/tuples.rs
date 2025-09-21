@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::mem;
 use std::ops::ControlFlow;
 
 pub trait TupleLen {
@@ -116,16 +117,16 @@ impl Reducer<ControlFlow<Ordering, Ordering>, Option<Ordering>> for DomReducer {
     fn apply(&self, v1: ControlFlow<Ordering, Ordering>, v2: Option<Ordering>) -> Self::Output {
         match v1 {
             ControlFlow::Continue(v1) => {
-                let mut options = [v1, v2.unwrap_or(Ordering::Equal)];
-                if !options.is_sorted() {
-                    options.swap(0, 1);
+                let (mut v1, mut v2) = (v1, v2.unwrap_or(Ordering::Equal));
+                if v2 < v1 {
+                    mem::swap(&mut v1, &mut v2)
                 }
-                match options {
-                    [Ordering::Less, Ordering::Greater] => ControlFlow::Break(Ordering::Equal),
-                    [Ordering::Less, _] => ControlFlow::Continue(Ordering::Less),
-                    [Ordering::Equal, Ordering::Equal] => ControlFlow::Continue(Ordering::Equal),
-                    [Ordering::Equal, Ordering::Greater]
-                    | [Ordering::Greater, Ordering::Greater] => {
+                match (v1, v2) {
+                    (Ordering::Less, Ordering::Greater) => ControlFlow::Break(Ordering::Equal),
+                    (Ordering::Less, _) => ControlFlow::Continue(Ordering::Less),
+                    (Ordering::Equal, Ordering::Equal) => ControlFlow::Continue(Ordering::Equal),
+                    (Ordering::Equal, Ordering::Greater)
+                    | (Ordering::Greater, Ordering::Greater) => {
                         ControlFlow::Continue(Ordering::Greater)
                     }
                     _ => unreachable!("Unreachable by construction"),

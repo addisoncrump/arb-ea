@@ -29,8 +29,6 @@ where
         }
     }
 
-    println!("{s:?}");
-
     let front = front.into_boxed_slice();
     let mut remaining = popululation.len() - front.len();
     let mut fronts = vec![front];
