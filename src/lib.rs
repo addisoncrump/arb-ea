@@ -57,9 +57,3 @@ where
 
     (ranks, fronts)
 }
-
-#[cfg(test)]
-mod moors {
-    use crate::fast_non_dominated_sort;
-    use tuple_list::tuple_list;
-}
