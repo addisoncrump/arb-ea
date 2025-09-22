@@ -11,22 +11,22 @@ fn dominates() {
     // Test case 1: The first vector dominates the second
     let a = tuple_list![1.0, 2usize, 3u32, false];
     let b = tuple_list![2.0, 3usize, 4u32, true];
-    assert_eq!(a.dominates(&b), Ordering::Less);
+    assert_eq!(a.dominates(&b), Some(Ordering::Less));
 
     // Test case 2: The second vector dominates the first
     let a = tuple_list![3.0, 4usize, 5u32, true];
     let b = tuple_list![3.0, 3usize, 3u32, false];
-    assert_eq!(a.dominates(&b), Ordering::Greater);
+    assert_eq!(a.dominates(&b), Some(Ordering::Greater));
 
     // Test case 3: Neither vector dominates the other
     let a = tuple_list![1.0, 2usize, 3u32, false];
     let b = tuple_list![2.0, 1usize, 3u32, true];
-    assert_eq!(a.dominates(&b), Ordering::Equal);
+    assert_eq!(a.dominates(&b), None);
 
     // Test case 4: Equal vectors
     let a = tuple_list![1.0, 2usize, 3u32, false];
     let b = tuple_list![1.0, 2usize, 3u32, false];
-    assert_eq!(a.dominates(&b), Ordering::Equal);
+    assert_eq!(a.dominates(&b), Some(Ordering::Equal));
 }
 
 #[test]

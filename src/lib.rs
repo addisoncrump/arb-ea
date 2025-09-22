@@ -1,9 +1,16 @@
+#![no_std]
+
+extern crate alloc;
+
 pub mod tuples;
 
 use crate::tuples::Dom;
-use std::cmp::Ordering;
+use alloc::boxed::Box;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::cmp::Ordering;
 
-pub fn fast_non_dominated_sort<T>(popululation: &Vec<T>) -> (Vec<usize>, Vec<Box<[usize]>>)
+pub fn fast_non_dominated_sort<T>(popululation: &[T]) -> (Vec<usize>, Vec<Box<[usize]>>)
 where
     T: Dom<T>,
 {
@@ -15,7 +22,7 @@ where
     for (p, first) in popululation.iter().enumerate() {
         for q in (p + 1)..popululation.len() {
             let other = &popululation[q];
-            let (dominator, dominated) = match first.dominates(other) {
+            let (dominator, dominated) = match first.dominates(other).unwrap_or(Ordering::Equal) {
                 Ordering::Less => (p, q),
                 Ordering::Equal => continue,
                 Ordering::Greater => (q, p),
