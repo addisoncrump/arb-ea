@@ -155,3 +155,44 @@ where
         }
     }
 }
+
+pub trait Evaluator<I> {
+    type Output;
+
+    fn evaluate(&mut self, input: &I) -> Self::Output;
+}
+
+impl<I, O, F> Evaluator<I> for F
+where
+    F: FnMut(&I) -> O,
+{
+    type Output = O;
+
+    fn evaluate(&mut self, input: &I) -> Self::Output {
+        self(input)
+    }
+}
+
+pub trait EvaluateTuple<I> {
+    type Output;
+
+    fn evaluate(&mut self, value: &I) -> Self::Output;
+}
+
+impl<T> EvaluateTuple<T> for () {
+    type Output = ();
+
+    fn evaluate(&mut self, _value: &T) -> Self::Output {}
+}
+
+impl<T, F1, FT> EvaluateTuple<T> for (F1, FT)
+where
+    FT: EvaluateTuple<T>,
+    F1: Evaluator<T>,
+{
+    type Output = (F1::Output, FT::Output);
+
+    fn evaluate(&mut self, value: &T) -> Self::Output {
+        (self.0.evaluate(value), self.1.evaluate(value))
+    }
+}

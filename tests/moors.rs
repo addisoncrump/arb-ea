@@ -2,7 +2,7 @@
 //! See: https://github.com/andresliszt/moo-rs/blob/decdd829c9d96c52c13cfaac9cb65802f6093abf/LICENSE
 
 use arb_ea::fast_non_dominated_sort;
-use arb_ea::tuples::Dom;
+use arb_ea::tuples::{Dom, EvaluateTuple};
 use std::cmp::Ordering;
 use tuple_list::tuple_list;
 
@@ -39,6 +39,47 @@ fn test_fast_non_dominated_sorting() {
         tuple_list![3.0, 4.0], // Individual 3 (dominated by everyone)
         tuple_list![4.0, 3.0], // Individual 4 (dominated by everyone)
     ];
+
+    // Perform fast non-dominated sorting with min_survivors = 5
+    let fronts = fast_non_dominated_sort(&population_fitness);
+
+    // Expected Pareto fronts:
+    // Front 1: Individuals 0, 1, 2
+    // Front 2: Individuals 3, 4 (the entire front is included when min_survivors is reached)
+    let expected_fronts = vec![
+        vec![0, 1, 2].into_boxed_slice(), // Front 1
+        vec![3, 4].into_boxed_slice(),    // Front 2
+    ];
+
+    assert_eq!(fronts.1, expected_fronts);
+}
+
+struct A {
+    value: usize,
+}
+
+#[test]
+fn mapping() {
+    let source_fitness = vec![
+        vec![1.0, 2.0], // Individual 0
+        vec![2.0, 1.0], // Individual 1
+        vec![1.5, 1.5], // Individual 2
+        vec![3.0, 4.0], // Individual 3 (dominated by everyone)
+        vec![4.0, 3.0], // Individual 4 (dominated by everyone)
+    ];
+
+    // rust formatter is garbage here...
+    #[rustfmt::skip]
+    let mut fitness_functions = tuple_list!(
+        |a: &A| { source_fitness[a.value][0] },
+        |a: &A| { source_fitness[a.value][1] },
+    );
+
+    // produce a "population" (A { value: 0..5 }) and instantly evaluate it
+    let population_fitness = (0..source_fitness.len())
+        .map(|value| A { value })
+        .map(|a| fitness_functions.evaluate(&a))
+        .collect::<Vec<_>>();
 
     // Perform fast non-dominated sorting with min_survivors = 5
     let fronts = fast_non_dominated_sort(&population_fitness);
