@@ -9,23 +9,23 @@ use tuple_list::tuple_list;
 #[test]
 fn dominates() {
     // Test case 1: The first vector dominates the second
-    let a = tuple_list![1.0, 2.0, 3.0];
-    let b = tuple_list![2.0, 3.0, 4.0];
+    let a = tuple_list![1.0, 2usize, 3u32, false];
+    let b = tuple_list![2.0, 3usize, 4u32, true];
     assert_eq!(a.dominates(&b), Ordering::Less);
 
     // Test case 2: The second vector dominates the first
-    let a = tuple_list![3.0, 4.0, 5.0];
-    let b = tuple_list![3.0, 3.0, 3.0];
+    let a = tuple_list![3.0, 4usize, 5u32, true];
+    let b = tuple_list![3.0, 3usize, 3u32, false];
     assert_eq!(a.dominates(&b), Ordering::Greater);
 
     // Test case 3: Neither vector dominates the other
-    let a = tuple_list![1.0, 2.0, 3.0];
-    let b = tuple_list![2.0, 1.0, 3.0];
+    let a = tuple_list![1.0, 2usize, 3u32, false];
+    let b = tuple_list![2.0, 1usize, 3u32, true];
     assert_eq!(a.dominates(&b), Ordering::Equal);
 
     // Test case 4: Equal vectors
-    let a = tuple_list![1.0, 2.0, 3.0];
-    let b = tuple_list![1.0, 2.0, 3.0];
+    let a = tuple_list![1.0, 2usize, 3u32, false];
+    let b = tuple_list![1.0, 2usize, 3u32, false];
     assert_eq!(a.dominates(&b), Ordering::Equal);
 }
 
@@ -33,11 +33,11 @@ fn dominates() {
 fn test_fast_non_dominated_sorting() {
     // Define the fitness values of the population
     let population_fitness = vec![
-        tuple_list![1.0, 2.0], // Individual 0
-        tuple_list![2.0, 1.0], // Individual 1
-        tuple_list![1.5, 1.5], // Individual 2
-        tuple_list![3.0, 4.0], // Individual 3 (dominated by everyone)
-        tuple_list![4.0, 3.0], // Individual 4 (dominated by everyone)
+        tuple_list![1.0, 4u32], // Individual 0
+        tuple_list![2.0, 2u32], // Individual 1
+        tuple_list![1.5, 3u32], // Individual 2
+        tuple_list![3.0, 8u32], // Individual 3 (dominated by everyone)
+        tuple_list![4.0, 6u32], // Individual 4 (dominated by everyone)
     ];
 
     // Perform fast non-dominated sorting with min_survivors = 5
@@ -61,18 +61,18 @@ struct A {
 #[test]
 fn mapping() {
     let source_fitness = vec![
-        vec![1.0, 2.0], // Individual 0
-        vec![2.0, 1.0], // Individual 1
-        vec![1.5, 1.5], // Individual 2
-        vec![3.0, 4.0], // Individual 3 (dominated by everyone)
-        vec![4.0, 3.0], // Individual 4 (dominated by everyone)
+        (1.0, 4), // Individual 0
+        (2.0, 2), // Individual 1
+        (1.5, 3), // Individual 2
+        (3.0, 8), // Individual 3 (dominated by everyone)
+        (4.0, 6), // Individual 4 (dominated by everyone)
     ];
 
     // rust formatter is garbage here...
     #[rustfmt::skip]
     let mut fitness_functions = tuple_list!(
-        |a: &A| { source_fitness[a.value][0] },
-        |a: &A| { source_fitness[a.value][1] },
+        |a: &A| { source_fitness[a.value].0 },
+        |a: &A| { source_fitness[a.value].1 },
     );
 
     // produce a "population" (A { value: 0..5 }) and instantly evaluate it
